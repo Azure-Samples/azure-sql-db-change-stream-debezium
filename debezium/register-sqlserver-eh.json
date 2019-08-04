@@ -1,0 +1,22 @@
+{
+    "name": "wwi",
+    "config": {
+        "connector.class" : "io.debezium.connector.sqlserver.SqlServerConnector",
+        "database.hostname" : "192.168.0.80",
+        "database.port" : "1433",
+        "database.user" : "debezium-wwi",
+        "database.password" : "debezium-WWI-P@ssw0rd!",
+        "database.dbname" : "WideWorldImporters",
+        "database.server.name" : "SQLServer",
+        "tasks.max" : "1",                
+	    "snapshot.mode": "initial_schema_only",
+        "decimal.handling.mode": "string",
+        "transforms": "Reroute",
+        "transforms.Reroute.type": "io.debezium.transforms.ByLogicalTableRouter",
+        "transforms.Reroute.topic.regex": "(.*)",
+        "transforms.Reroute.topic.replacement": "wwi",          
+        "tombstones.on.delete": false,
+        "database.history":"io.debezium.relational.history.MemoryDatabaseHistory",
+		"table.whitelist": "Sales.Orders,Warehouse.StockItems"
+    }
+}
