@@ -18,5 +18,7 @@ INSERT INTO @orderlinelist
 SELECT TOP(1) 1 AS OrderReference, si.StockItemID, si.StockItemName AS [Description], FLOOR(RAND() * 10) + 1 AS Quantity FROM Warehouse.StockItems AS si WHERE IsChillerStock <> 0 AND @r < 4 ORDER BY NEWID()
 
 EXEC Website.InsertCustomerOrders @orders, @orderlinelist, @personId, @personId
+GO
 
-SELECT TOP (100) * FROM Sales.Orders ORDER BY OrderID DESC
+-- View inserted order header
+SELECT TOP (1) * FROM Sales.Orders ORDER BY OrderID DESC
