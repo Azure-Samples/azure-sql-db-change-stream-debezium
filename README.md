@@ -54,9 +54,9 @@ In order to run Debezium you have to install and configure Apache Kafka, Apache 
 If prefer a more lean and quick easy to start using Debezium, you can just use the [Debezium Docker Image](https://github.com/debezium/docker-images), that provide anything you need to run a test instance of Debezium.
 Event simpler than that, just make sure you have [Docker](https://docs.docker.com/install/) and [Docker Compose](https://docs.docker.com/compose) installed.
 
-#### Configuring Environment
+#### Configure Environment
 
-Docker Compose will use `.env` to get the enviroment variables values used in the `.yaml` configuration file. The provided `.env` file look like the followin:
+Docker Compose will use `.env` to get the enviroment variables values used in the `.yaml` configuration file. The provided `.env.template` file look like the followin:
 
 ```bash
 DEBEZIUM_VERSION=0.10
@@ -64,9 +64,108 @@ EH_NAME=debezium
 EH_CONNECTION_STRING=
 ```
 
-Leave the version set to 0.10. Change the `EH_NAME` to the EventHubs name you created before. Also set `EH_CONNECTION_STRING` to hold the EventHubs connection string you got before. Make sure not to use any additional quotes or double quotes.
+Copy it and create a new `.env` file. Leave the version set to 0.10. Change the `EH_NAME` to the EventHubs name you created before. Also set `EH_CONNECTION_STRING` to hold the EventHubs connection string you got before. Make sure not to use any additional quotes or double quotes.
+
+#### The .yaml file
+
+If you are just interested in testing Debezium you can safely skip this section and move to the next one to start Debezium. If you want to understand how to make Debzium work with Evenhubs, read on.
+
+Debezium needs Apache Kafka to run, NOT EventHubs. Luckly for us, EventHubs exposes a Kafka-Compatible endpoint, so we can still enjoy Kafka with all the comfort of a PaaS offering. There are a few tweeks needed in order to make Debezium working with EventHubs.
+
+First of all EventHubs requires authentication. This part is taken care from the configuration settings that looks like the followin:
+
+```yaml
+- *_SECURITY_PROTOCOL=SASL_SSL
+- *_SASL_MECHANISM=PLAIN
+- *_SASL_JAAS_CONFIG=[...]
+```
+
+Documentation on EventHubs Kafka Authentication and Kafka Connect is available here:
+
+[Integrate Apache Kafka Connect support on Azure Event Hubs](https://docs.microsoft.com/en-us/azure/event-hubs/event-hubs-kafka-connect-tutorial)
+
+Since we're running a Docker Image, we cannot really change the configuration file, but Debezium allows pass-through configurations:
+
+[Debezium Connect-Base](https://github.com/debezium/docker-images/tree/master/connect-base/0.10#others)
+
+There is additional caveat to keep in mind. EventHubs security uses the string `$ConnectionString` as username. In order to avoid to have Docker Compose to treat it as a variable instead, a double dollar sign `$$` needs to be used:
+
+[Docker Compose Config File Variable Substitution](https://docs.docker.com/compose/compose-file/#variable-substitution)
+
+Two other options useful for running Debezium on EventHubs are the following:
+
+```yaml
+- CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE=false
+- CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=true
+```
+
+They control if the schema is sent with the data or not. Since the EventHub only support values, as opposed to Apache Kafka, which everything is actually a key-value pair, the schema generation for the key section can be safely turned off. While this can also be done for the value part, it is not recommended as some data type are serialized in a Kafka-Way and you need to know their "sematic" type in order to recreate the correct value.
+
+[Debezium SQL Server Connector Data Types](https://debezium.io/docs/connectors/sqlserver/#data-types)
+
+Here's a sample of a schema for a "create" (INSERT) event:
+
+[Debezium SQL Server Connector Create Event Sample](https://debezium.io/docs/connectors/sqlserver/#create-events)
 
 #### Start Debezium
 
 Debezium can now be started. If you're using the Docker Images you can just do this by running `debezium/start-debezium.ps1` (or the `.sh` file if you're on Linux/WSL)
 
+Once the startup has finished, you'll see something like
+
+```text
+[Worker clientId=connect-1, groupId=1] Finished starting connectors and tasks   [org.apache.kafka.connect.runtime.distributed.DistributedHerder]
+```
+
+you will see three topics (or eventhub to use the Azure EventHubs nomenclature):
+
+```bash
+az eventhubs eventhub list -g debezium --namespace debezium -o table
+```
+
+and the result will show:
+
+- debezium_configs
+- debezium_offsets
+- debezium_statuses
+
+to explore EventHubs is strongly suggest to download and use [Service Bus Explorer](https://github.com/paolosalvatori/ServiceBusExplorer)
+
+#### Register SQL Server Connector
+
+Now that Debezium is running, the SQL Server Connector can be registered. Before doing that, make sure to specify the correct connection for your SQL Server instance in the `debezium/register-sqlserver-eh.json` file.
+
+If you are using the Wide World Importer database, the only values you have to change are:
+
+```json
+"database.hostname" : "192.168.0.80",
+"database.port" : "1433",
+```
+
+If you are followin the step-by-step guide using a database of yours, make sure to also correctly set values for
+
+```json
+"database.user" : "debezium-wwi",
+"database.password" : "debezium-WWI-P@ssw0rd!",
+"database.dbname" : "WideWorldImporters",
+```
+
+All the other values used are explained in detail here:
+
+[SQL Server Connector Configuration Values](./documentation/SQL-Server-Connector-Configuration-Value..md)
+
+Once the configuration file is set, just register that using `debezium/register-connector.ps1`.
+
+Depending on how big your tables are, it make take a while (more on this later). Once you see the following message:
+
+```text
+Snapshot step 8 - Finalizing   [io.debezium.relational.HistorizedRelationalSnapshotChangeEventSource]
+```
+
+and no other errors or exception before that, you'll know that the SQL Server Connector is correctly running.
+
+#### Make sample changes
+
+#### Consume Change Stream using an Azure Functions
+
+#### Done!
