@@ -14,6 +14,12 @@ namespace DM
         public static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);        
     }
 
+    public enum Operation {
+        Insert,        
+        Update,
+        Delete
+    }
+
     public class TableInfo 
     {
         public readonly string Schema;
@@ -134,12 +140,12 @@ namespace DM
     public class ChangeFeedParser
     {
         private JObject _body;
-
         private JObject _payload => (JObject)(_body["payload"]);
         private JObject _source => (JObject)(_payload["source"]);
         public TableInfo TableInfo { get; private set;}
         public readonly Fields After;
         public readonly Fields Before;
+        public readonly Operation Operation;
 
         public ChangeFeedParser(JObject body)
         {
@@ -153,6 +159,23 @@ namespace DM
 
             Before = new Fields(body, "before");
             After = new Fields(body, "after");
+
+            switch(_payload["op"].ToString()) {
+                case "c": 
+                    Operation = Operation.Insert;
+                    break;
+
+                case "u":
+                    Operation = Operation.Update;
+                    break;
+                
+                case "d":
+                    Operation = Operation.Delete;
+                    break;
+
+                default:
+                    throw new ApplicationException("Field 'op' contains an unknown value.");
+            }
         }
     }
 }
