@@ -25,16 +25,23 @@ namespace DM
                     {                    
                         string messageBody = Encoding.UTF8.GetString(eventData.Body.Array, eventData.Body.Offset, eventData.Body.Count);
 
-                        log.LogInformation(messageBody);
+                        //log.LogInformation(messageBody);
                         
                         var body = JObject.Parse(messageBody);                        
                         var parser = new ChangeFeedParser(body);
 
                         log.LogInformation("Event from Change Feed received:");
                         log.LogInformation("- Object: " + parser.TableInfo.Schema + "." + parser.TableInfo.Table);                                              
+                        log.LogInformation("- Operation: " + parser.Operation.ToString());
                         log.LogInformation("- Captured At: " + parser.TableInfo.ChangedAt.ToString("O"));  
 
-                        foreach(var f in parser.After) 
+                        Fields fields;
+                        if (parser.Operation == Operation.Insert || parser.Operation == Operation.Update)
+                            fields = parser.After;
+                        else
+                            fields = parser.Before;                        
+
+                        foreach(var f in fields) 
                         {
                             log.LogInformation($"> {f.Name} = {f.Value}");
                         }
@@ -50,7 +57,6 @@ namespace DM
             }
 
             // Once processing of the batch is complete, if any messages in the batch failed processing throw an exception so that there is a record of the failure.
-
             if (exceptions.Count > 1)
                 throw new AggregateException(exceptions);
 
