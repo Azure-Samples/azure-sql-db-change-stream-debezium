@@ -164,8 +164,49 @@ Snapshot step 8 - Finalizing   [io.debezium.relational.HistorizedRelationalSnaps
 
 and no other errors or exception before that, you'll know that the SQL Server Connector is correctly running.
 
-#### Make sample changes
+### Make sample changes
 
-#### Consume Change Stream using an Azure Functions
+Now that Debezium is running and fully configured, you can generate a new Sales Order and insert, update and delete some data in the Stock table. You can use the following scripts:
 
-#### Done!
+```bash
+./sql/02-create-new-sales-order.sql
+./sql/03-modify-warehouse-stock.sql
+```
+
+After running the script you can use Service Bus Explorer or VS Code Event Hub Explorer to consume the stream of changes sent to EventHubs. You'll notice a new topic named `wwi`. That's where we instructed Debezium to send all the changes detected to the monitored tables.
+
+### Consume Change Stream using an Azure Functions
+
+One way to quickly react to the Change Stream data coming from Debezium is to use Azure Functions. A sample is available in folder `azure-function`. The easiest way to run the sample is to open it from VS Code. It will automatically recognize it as an Azure Function and download everything needed to run it.
+
+Make sure you have a `local.setting.json` that looks like the provided template. Copy the EventHubs connection string you got at the beginning into the `Debezium` configuration option.
+
+Start the function. As soon as the Azure Function runtime is running, the code will start to process the changes already available in EventHubs and you'll see something like this:
+
+```text
+Event from Change Feed received:
+- Object: Sales.Orders
+- Operation: Insert
+- Captured At: 2019-08-04T22:35:59.0100000Z
+> OrderID = 73625
+> CustomerID = 941
+> SalespersonPersonID = 3
+> PickedByPersonID =
+> ContactPersonID = 3141
+> BackorderOrderID =
+> OrderDate = 8/4/2019 12:00:00 AM
+> ExpectedDeliveryDate = 8/5/2019 12:00:00 AM
+> CustomerPurchaseOrderNumber = 4923
+> IsUndersupplyBackordered = False
+> Comments = Auto-generated
+> DeliveryInstructions = Unit 17, 1466 Deilami Road
+> InternalComments =
+> PickingCompletedWhen =
+> LastEditedBy = 3
+> LastEditedWhen = 8/4/2019 10:35:58 PM
+Executed 'ProcessDebeziumPayload' (Succeeded, Id=ee9d1080-64ff-4039-83af-69c4b12fa85f)
+```
+
+### Done
+
+Congratulations, you now have a working Change Stream from SQL Server. This opens up a whole new set of possibilities! Have fun!
