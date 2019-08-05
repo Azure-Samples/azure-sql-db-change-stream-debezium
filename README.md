@@ -6,6 +6,8 @@ Debezium make use of [Change Data Capture](https://docs.microsoft.com/en-us/sql/
 
 With Debezium and SQL Server you can not only create more modern and reactive applications that handles data changes in near real time with a minium impact on the database, but you can also use it to implement your Hybrid IT strategy, still using On-Prem SQL Server but relying on Azure for all your computing needs, taking advantage of PaaS offerings like EventHubs and Azure Functions. This sample will show how to do that.
 
+![SQL Server Change Stream](./documentation/sql-server-change-stream.gif)
+
 ## Step by Step Guide
 
 This step by step guide uses Wide World Importers sample database from here:
