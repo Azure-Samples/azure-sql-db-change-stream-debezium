@@ -162,7 +162,7 @@ If you are followin the step-by-step guide using a database of yours, make sure 
 
 All the other values used are explained in detail here:
 
-[SQL Server Connector Configuration Values](./documentation/SQL-Server-Connector-Configuration-Value..md)
+[SQL Server Connector Configuration Values](./documentation/SQL-Server-Connector-Configuration-Value.md)
 
 Once the configuration file is set, just register that using `debezium/register-connector.ps1`.
 
@@ -243,4 +243,4 @@ Please note that at present time, with Debezium 0.10
 
 More details on SQL Server and Event Hubs specific configuration here:
 
-[SQL Server Connector Configuration Values](./documentation/SQL-Server-Connector-Configuration-Value..md)
+[SQL Server Connector Configuration Values](./documentation/SQL-Server-Connector-Configuration-Value.md)
