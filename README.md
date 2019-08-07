@@ -8,6 +8,10 @@ With Debezium and SQL Server you can not only create more modern and reactive ap
 
 ![SQL Server Change Stream](./documentation/sql-server-change-stream.gif)
 
+For those who want more details, Debezium uses Apache Kafka, which is not natively available on Azure SQL as a PaaS offer. But luckly EventHubs offer almost 100% support, so we can use it insterad of Kafka and make maintenance and scalability easier.
+
+[Event Hubs for Kafka](https://docs.microsoft.com/en-us/azure/event-hubs/event-hubs-for-kafka-ecosystem-overview)
+
 ## Step by Step Guide
 
 This step by step guide uses Wide World Importers sample database from here:
@@ -216,3 +220,27 @@ Executed 'ProcessDebeziumPayload' (Succeeded, Id=ee9d1080-64ff-4039-83af-69c4b12
 ### Done
 
 Congratulations, you now have a working Change Stream from SQL Server. This opens up a whole new set of possibilities! Have fun!
+
+### Some additional notes
+
+#### Initial Snapshot
+
+As described in the documentation, Debezium take an initial snapshot of the selected tables, in order to send *all the existing data* into the change stream. As you can imagine this can take a *long* time if tables are big. Also keep in mind that, by default, Debezium will do a
+
+```sql
+SELECT * FROM <table> WITH (TABLOCKX)
+```
+
+and will do tha the same connection for all the configured tables so it will lock pretty much everything. Be aware! The lock used during the initial snapshot can be configured using dedicated options (see the "Advanced" section):
+
+[Connector Properties](https://debezium.io/docs/connectors/sqlserver/#connector-properties)
+
+If you don't want Debezium to take the snapshot, for example bacause you're doing it on your own, using Database Snapshots, then you can set the option `snapshot.mode` to `initial_schema_only`, to make sure only schema is snapshotted and *not* data.
+
+Please note that at present time, with Debezium 0.10
+
+#### Connector Configuration
+
+More details on SQL Server and Event Hubs specific configuration here:
+
+[SQL Server Connector Configuration Values](./documentation/SQL-Server-Connector-Configuration-Value..md)
