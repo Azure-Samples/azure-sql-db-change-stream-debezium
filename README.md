@@ -119,7 +119,7 @@ Here's a sample of a schema for a "create" (INSERT) event:
 
 #### Start Debezium
 
-Debezium can now be started. If you're using the Docker Images you can just do this by running `debezium/start-debezium.ps1` (or the `.sh` file if you're on Linux/WSL)
+Debezium can now be started. If you're using the Docker Images you can just do this by running `debezium/on-prem/start-debezium.ps1` (or the `.sh` file if you're on Linux/WSL)
 
 Once the startup has finished, you'll see something like
 
@@ -164,7 +164,7 @@ All the other values used are explained in detail here:
 
 [SQL Server Connector Configuration Values](./documentation/SQL-Server-Connector-Configuration-Value.md)
 
-Once the configuration file is set, just register that using `debezium/register-connector.ps1`.
+Once the configuration file is set, just register that using `debezium/on-prem/register-connector.ps1`.
 
 Depending on how big your tables are, it make take a while (more on this later). Once you see the following message:
 
@@ -221,7 +221,7 @@ Executed 'ProcessDebeziumPayload' (Succeeded, Id=ee9d1080-64ff-4039-83af-69c4b12
 
 Congratulations, you now have a working Change Stream from SQL Server. This opens up a whole new set of possibilities! Have fun!
 
-### Some additional notes
+### Notes
 
 #### Initial Snapshot
 
@@ -231,13 +231,21 @@ As described in the documentation, Debezium take an initial snapshot of the sele
 SELECT * FROM <table> WITH (TABLOCKX)
 ```
 
-and will do tha the same connection for all the configured tables so it will lock pretty much everything. Be aware! The lock used during the initial snapshot can be configured using dedicated options (see the "Advanced" section):
+and will do the same connection for all the configured tables so it will lock pretty much everything. Be aware! The lock used during the initial snapshot can be configured using dedicated options (see the "Advanced" section):
 
 [Connector Properties](https://debezium.io/docs/connectors/sqlserver/#connector-properties)
 
-If you don't want Debezium to take the snapshot, for example bacause you're doing it on your own, using Database Snapshots, then you can set the option `snapshot.mode` to `initial_schema_only`, to make sure only schema is snapshotted and *not* data.
+If you don't want Debezium to take the snapshot, for example because you're doing it on your own, using Database Snapshots and Bulk Load, then you can set the option `snapshot.mode` to `initial_schema_only`, to make sure only schema is snapshotted and *not* data. In that case, starting from version 0.10.beta4 of Debezium, the followin statement will be executed:
 
-Please note that at present time, with Debezium 0.10
+```sql
+SELECT TOP (0) * FROM <table> WITH (TABLOCKX)
+```
+
+And that won't cause any harm to your system.
+
+#### Running Debezium on Azure
+
+If you're using Debezium with Azure SQL MI, you may want to run Debezium on Azure. Sample script to run the Debezium container on Azure Container Instances are available in the `debezium/azure` folder.
 
 #### Connector Configuration
 
