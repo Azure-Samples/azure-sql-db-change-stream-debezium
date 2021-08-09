@@ -8,7 +8,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
-namespace DM
+namespace Azure.SQLDB.ChangeDataCapture.Debezium.Sample
 {
     public static class ProcessDebeziumPayload
     {
@@ -22,31 +22,28 @@ namespace DM
                 try
                 {
                     if (eventData.Body.Array.Length > 0)
-                    {
+                    {                    
                         string messageBody = Encoding.UTF8.GetString(eventData.Body.Array, eventData.Body.Offset, eventData.Body.Count);
 
                         //log.LogInformation(messageBody);
-
-                        var body = JObject.Parse(messageBody);
+                        
+                        var body = JObject.Parse(messageBody);                        
                         var parser = new ChangeFeedParser(body);
 
                         log.LogInformation("Event from Change Feed received:");
-                        log.LogInformation("- Object: " + parser.TableInfo.Schema + "." + parser.TableInfo.Table);
+                        log.LogInformation("- Object: " + parser.TableInfo.Schema + "." + parser.TableInfo.Table);                                              
                         log.LogInformation("- Operation: " + parser.Operation.ToString());
-                        log.LogInformation("- Captured At: " + parser.TableInfo.ChangedAt.ToString("O"));
+                        log.LogInformation("- Captured At: " + parser.TableInfo.ChangedAt.ToString("O"));  
 
-                        if (parser.Operation != Operation.Read)
+                        Fields fields;
+                        if (parser.Operation == Operation.Insert || parser.Operation == Operation.Update)
+                            fields = parser.After;
+                        else
+                            fields = parser.Before;                        
+
+                        foreach(var f in fields) 
                         {
-                            Fields fields;
-                            if (parser.Operation == Operation.Insert || parser.Operation == Operation.Update)
-                                fields = parser.After;
-                            else
-                                fields = parser.Before;
-
-                            foreach (var f in fields)
-                            {
-                                log.LogInformation($"> {f.Name} = {f.Value}");
-                            }
+                            log.LogInformation($"> {f.Name} = {f.Value}");
                         }
                     }
                     await Task.Yield();
@@ -66,5 +63,5 @@ namespace DM
             if (exceptions.Count == 1)
                 throw exceptions.Single();
         }
-    }
+    }   
 }

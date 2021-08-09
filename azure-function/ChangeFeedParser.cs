@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
-namespace DM
+namespace Azure.SQLDB.ChangeDataCapture.Debezium.Sample
 {
     public class Utils
     {
