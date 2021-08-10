@@ -68,7 +68,7 @@ If prefer a more lean and quick easy to start using Debezium, you can just use t
 Docker Compose will use `.env` to get the environment variables values used in the `.yaml` configuration file. The provided `.env.template` file look like the following:
 
 ```bash
-DEBEZIUM_VERSION=0.10
+DEBEZIUM_VERSION=1.6
 EH_NAME=debezium
 EH_CONNECTION_STRING=
 ```
