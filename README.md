@@ -73,7 +73,7 @@ EH_NAME=debezium
 EH_CONNECTION_STRING=
 ```
 
-Copy it and create a new `.env` file. Leave the version set to 0.10. Change the `EH_NAME` to the EventHubs name you created before. Also set `EH_CONNECTION_STRING` to hold the EventHubs connection string you got before. Make sure not to use any additional quotes or double quotes.
+Copy it and create a new `.env` file. Leave the version set to 1.6. Change the `EH_NAME` to the EventHubs name you created before. Also set `EH_CONNECTION_STRING` to hold the EventHubs connection string you got before. Make sure not to use any additional quotes or double quotes.
 
 #### The .yaml file
 
