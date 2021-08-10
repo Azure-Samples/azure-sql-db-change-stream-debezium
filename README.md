@@ -1,10 +1,10 @@
-# SQL Server Change Stream with Debezium
+# Azure SQL / SQL Server Change Stream with Debezium
 
 SQL Server Change Stream sample using [Debezium](https://debezium.io/). A change feed or change stream allow applications to access real-time data changes, using standard technologies and well-known API, to create modern applications using the full power of database like SQL Server.
 
-Debezium make use of [Change Data Capture](https://docs.microsoft.com/en-us/sql/relational-databases/track-changes/about-change-data-capture-sql-server?view=sql-server-2017), so it can be used with On-Premises SQL Servers, SQL Servers running on VMs in any cloud, and [Azure SQL MI](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-managed-instance-index).
+Debezium make use of [Change Data Capture](https://docs.microsoft.com/en-us/sql/relational-databases/track-changes/about-change-data-capture-sql-server?view=sql-server-2017), so it can be used with SQL Server on-premises and the whole [Azure SQL](https://azure.microsoft.com/en-us/products/azure-sql) family (https://azure.microsoft.com/en-us/products/azure-sql) (Azure SQL MI, Azure SQL DB, SQL Server on VM).
 
-With Debezium and SQL Server you can not only create more modern and reactive applications that handle data changes in near real time with a minium impact on the database, but you can also use it to implement your Hybrid IT strategy, still using On-Prem SQL Server but relying on Azure for all your computing needs, taking advantage of PaaS offerings like EventHubs and Azure Functions. This sample will show how to do that.
+With Debezium and Azure SQL / SQL Server you can not only create more modern and reactive applications that handle data changes in near real time with a minium impact on the database, but you can also use it to implement your Hybrid IT strategy, still using On-Prem SQL Server but relying on Azure for all your computing needs, taking advantage of PaaS offerings like EventHubs and Azure Functions. This sample will show how to do that.
 
 ![SQL Server Change Stream](./documentation/sql-server-change-stream.gif)
 
@@ -18,13 +18,13 @@ This step by step guide uses Wide World Importers sample database from here:
 
 https://github.com/Microsoft/sql-server-samples/releases/tag/wide-world-importers-v1.0
 
-Make sure you download the OLTP database if you want to follow this guide without having to change a thing.
+Make sure you download the OLTP database if you want to follow this guide without having to change a thing. To restore the database on Azure SQL, you can use the scripts provided here: [Restore Database in Azure SQL](https://github.com/yorek/azure-sql-db-samples/tree/master/samples/01-restore-database).
 
 ### Create Debezium User
 
 Debezium needs to query the database so a dedicated user is used throughout the sample. User has `db_owner` access to make the script simpler. In real world you may want to tighten security a bit more.
 
-To create the login and user run the script `/sql/00-setup-database-user.sql` on the server where you have restored Wide World Importers database.
+To create the login and user run the script `00-setup-database-user.sql` from the `sql` folder (pertinent to the service or product you are using, Azure SQL or SQL Server / Azure SQL MI) on the database where you have restored Wide World Importers database.
 
 ### Enable Change Data Capture
 
@@ -35,7 +35,7 @@ In this samples only two tables are monitored:
 - Sales.Orders
 - Warehouse.StockItems
 
-The script `/sql/01-enable-cdc.sql` enable Change Data Capture on the aforementioned tables.
+The script `01-enable-cdc.sql` enable Change Data Capture on the aforementioned tables.
 
 ### Create an Azure Event Hubs
 
@@ -61,8 +61,7 @@ az eventhubs namespace authorization-rule keys list -g debezium --namespace-name
 
 In order to run Debezium you have to install and configure Apache Kafka, Apache Zookeper and Kafka Connect. If you already know how to do that, or your already have a testing or development environment, well, perfect. Go and install Debezium SQL Server Connector: [Installing a Debezium Connector](https://debezium.io/docs/install/stable/#installing_a_debezium_connector).
 
-If prefer a more lean and quick easy to start using Debezium, you can just use the [Debezium Docker Image](https://github.com/debezium/docker-images), that provides anything you need to run a test instance of Debezium.
-Just make sure you have [Docker](https://docs.docker.com/install/) and [Docker Compose](https://docs.docker.com/compose) installed.
+If prefer a more lean and quick easy to start using Debezium, you can just use the [Debezium Docker Image](https://github.com/debezium/docker-images), that provides anything you need to run a test instance of Debezium. Just make sure you have [Docker](https://docs.docker.com/install/) and [Docker Compose](https://docs.docker.com/compose) installed. In the `debezium/on-prem` folder you can find all the scripts needed to run Debezium using Docker.
 
 #### Configure Environment
 
@@ -78,9 +77,9 @@ Copy it and create a new `.env` file. Leave the version set to 0.10. Change the 
 
 #### The .yaml file
 
-If you are just interested in testing Debezium you can safely skip this section and move to the next one to start Debezium. If you want to understand how to make Debezium work with Eventhubs, read on.
+If you are just interested in testing Debezium you can safely skip this section and move to the next one to start Debezium. If you want to understand how to make Debezium work with Event Hubs, read on.
 
-Debezium needs Apache Kafka to run, NOT EventHubs. Luckily for us, EventHubs exposes a Kafka-Compatible endpoint, so we can still enjoy Kafka with all the comfort of a PaaS offering. There are a few tweeks needed in order to make Debezium working with EventHubs.
+Debezium needs Apache Kafka to run, NOT Azure Event Hubs. Luckily for us, Azure Event Hubs exposes a Kafka-Compatible endpoint, so we can still enjoy Kafka with all the comfort of a PaaS offering. There are a few tweeks needed in order to make Debezium working with Azure Event Hubs.
 
 First of all EventHubs requires authentication. This part is taken care from the configuration settings that looks like the following:
 
@@ -96,20 +95,20 @@ Documentation on EventHubs Kafka Authentication and Kafka Connect is available h
 
 Since we're running a Docker Image, we cannot really change the configuration file, but Debezium allows pass-through configurations:
 
-[Debezium Connect-Base](https://github.com/debezium/docker-images/tree/master/connect-base/0.10#others)
+[Debezium Connect-Base](https://github.com/debezium/docker-images/tree/master/connect-base)
 
 There is additional caveat to keep in mind. EventHubs security uses the string `$ConnectionString` as username. In order to avoid to have Docker Compose to treat it as a variable instead, a double dollar sign `$$` needs to be used:
 
 [Docker Compose Config File Variable Substitution](https://docs.docker.com/compose/compose-file/#variable-substitution)
 
-Two other options useful for running Debezium on EventHubs are the following:
+Two other options useful for running Debezium on Azure Event Hubs are the following:
 
 ```yaml
 - CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE=false
 - CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=true
 ```
 
-They control if the schema is sent with the data or not. Since the EventHub only support values, as opposed to Apache Kafka, which everything is actually a key-value pair, the schema generation for the key section can be safely turned off. While this can also be done for the value part, it is not recommended as some data type are serialized in a Kafka-specific way and you need to know their "sematic" type in order to recreate the correct value.
+They control if the schema is sent with the data or not. Since the Azure Event Hubs only support values, as opposed to Apache Kafka, which everything is actually a key-value pair, the schema generation for the key section can be safely turned off. While this can also be done for the value part, it is not recommended as some data type are serialized in a Kafka-specific way and you need to know their "sematic" type in order to recreate the correct value.
 
 [Debezium SQL Server Connector Data Types](https://debezium.io/docs/connectors/sqlserver/#data-types)
 
@@ -139,25 +138,24 @@ and the result will show:
 - debezium_offsets
 - debezium_statuses
 
-to explore EventHubs is strongly suggest to download and use [Service Bus Explorer](https://github.com/paolosalvatori/ServiceBusExplorer)
+to explore Azure Event Hubs is strongly suggest to download and use [Service Bus Explorer](https://github.com/paolosalvatori/ServiceBusExplorer)
 
 #### Register SQL Server Connector
 
-Now that Debezium is running, the SQL Server Connector can be registered. Before doing that, make sure to specify the correct connection for your SQL Server instance in the `debezium/register-sqlserver-eh.json` file.
+Now that Debezium is running, the SQL Server Connector (which is used both for connecting to Azure SQL or SQL Server) can be registered. Before doing that, make sure to specify the correct connection for your SQL Server instance in the `debezium/register-sqlserver-eh.json` file. You can create one using the provided `.template` file.
 
 If you are using the Wide World Importers database, the only values you have to change are:
 
 ```json
-"database.hostname" : "192.168.0.80",
-"database.port" : "1433",
+"database.hostname": "<server>.database.windows.net",
+"database.dbname": "<database-name>",
 ```
 
 If you are following the step-by-step guide using a database of yours, make sure to also correctly set values for
 
 ```json
 "database.user" : "debezium-wwi",
-"database.password" : "debezium-WWI-P@ssw0rd!",
-"database.dbname" : "WideWorldImporters",
+"database.password" : "Abcd1234!",
 ```
 
 All the other values used are explained in detail here:
@@ -179,17 +177,17 @@ and no other errors or exception before that, you'll know that the SQL Server Co
 Now that Debezium is running and fully configured, you can generate a new Sales Order and insert, update and delete some data in the Stock table. You can use the following scripts:
 
 ```bash
-./sql/02-create-new-sales-order.sql
-./sql/03-modify-warehouse-stock.sql
+./sql/.../02-create-new-sales-order.sql
+./sql/.../03-modify-warehouse-stock.sql
 ```
 
-After running the script you can use Service Bus Explorer or VS Code Event Hub Explorer to consume the stream of changes sent to EventHubs. You'll notice a new topic named `wwi`. That's where we instructed Debezium to send all the changes detected to the monitored tables.
+After running the script you can use Service Bus Explorer or VS Code Event Hub Explorer to consume the stream of changes sent to Azure Event Hubs. You'll notice a new topic named `wwi`. That's where we instructed Debezium to send all the changes detected to the monitored tables.
 
 ### Consume Change Stream using an Azure Functions
 
-One way to quickly react to the Change Stream data coming from Debezium is to use Azure Functions. A sample is available in folder `azure-function`. The easiest way to run the sample is to open it from VS Code. It will automatically recognize it as an Azure Function and download everything needed to run it.
+One way to quickly react to the Change Stream data coming from Debezium is to use Azure Functions. A sample is available in folder `azure-function`. The easiest way to run the sample is to open it from VS Code or via [Azure Function Core Tools](https://docs.microsoft.com/azure/azure-functions/functions-run-local), via `func start`. It will automatically recognize it as an Azure Function and download everything needed to run it.
 
-Make sure you have a `local.setting.json` that looks like the provided template. Copy the EventHubs connection string you got at the beginning into the `Debezium` configuration option.
+Make sure you have a `local.setting.json` that looks like the provided template. Copy the Azure Event Hubs connection string you got at the beginning into the `Debezium` configuration option.
 
 Start the function. As soon as the Azure Function runtime is running, the code will start to process the changes already available in EventHubs and you'll see something like this:
 
@@ -221,9 +219,9 @@ Executed 'ProcessDebeziumPayload' (Succeeded, Id=ee9d1080-64ff-4039-83af-69c4b12
 
 Congratulations, you now have a working Change Stream from SQL Server. This opens up a whole new set of possibilities! Have fun!
 
-### Notes
+## Notes
 
-#### Initial Snapshot
+### Initial Snapshot
 
 As described in the documentation, Debezium take an initial snapshot of the selected tables, in order to send *all the existing data* into the change stream. As you can imagine this can take a *long* time if tables are big. Also keep in mind that, by default, Debezium will do a
 
@@ -235,7 +233,7 @@ and will do the same connection for all the configured tables so it will lock pr
 
 [Connector Properties](https://debezium.io/docs/connectors/sqlserver/#connector-properties)
 
-If you don't want Debezium to take the snapshot, for example because you're doing it on your own, using Database Snapshots and Bulk Load, then you can set the option `snapshot.mode` to `initial_schema_only`, to make sure only schema is snapshotted and *not* data. In that case, starting from version 0.10.beta4 of Debezium, the following statement will be executed:
+If you don't want Debezium to take the snapshot, for example because you're doing it on your own, using Database Snapshots and Bulk Load, then you can set the option `snapshot.mode` to `schema_only`, to make sure only schema is snapshotted and *not* data. In that case, starting from version 0.10.beta4 of Debezium, the following statement will be executed:
 
 ```sql
 SELECT TOP (0) * FROM <table> WITH (TABLOCKX)
@@ -243,11 +241,11 @@ SELECT TOP (0) * FROM <table> WITH (TABLOCKX)
 
 And that won't cause any harm to your system.
 
-#### Running Debezium on Azure
+### Running Debezium on Azure
 
-If you're using Debezium with Azure SQL MI, you may want to run Debezium on Azure. Sample script to run the Debezium container on Azure Container Instances are available in the `debezium/azure` folder.
+If you're using Debezium with Azure SQL MI or Azure SQL DB, you may want to run Debezium on Azure. Sample script to run the Debezium container on Azure Container Instances are available in the `debezium/azure` folder.
 
-#### Connector Configuration
+### Connector Configuration
 
 More details on SQL Server and Event Hubs specific configuration here:
 
