@@ -22,4 +22,3 @@ services:
      - CONNECT_CONSUMER_SECURITY_PROTOCOL=SASL_SSL
      - CONNECT_CONSUMER_SASL_MECHANISM=PLAIN
      - CONNECT_CONSUMER_SASL_JAAS_CONFIG=org.apache.kafka.common.security.plain.PlainLoginModule required username="$$ConnectionString" password="${EH_CONNECTION_STRING}";
-
