@@ -260,3 +260,15 @@ If you're using Debezium with Azure SQL MI or Azure SQL DB, you may want to run 
 More details on SQL Server and Event Hubs specific configuration here:
 
 [SQL Server Connector Configuration Values](./documentation/SQL-Server-Connector-Configuration-Value.md)
+
+## Troubleshooting
+
+### Local Azure Function not working
+
+If, after starting the Azure Function via `func start` you get the following error:
+
+```
+The listener for function 'ProcessDebeziumPayload' was unable to start. Microsoft.WindowsAzure.Storage: No connection could be made because the target machine actively refused it. System.Net.Http: No connection could be made because the target machine actively refused it. System.Private.CoreLib: No connection could be made because the target machine actively refused it.
+```
+
+you need to make sure that [Azure Storage Emulator](https://docs.microsoft.com/azure/storage/common/storage-use-azurite) is installed and started.
