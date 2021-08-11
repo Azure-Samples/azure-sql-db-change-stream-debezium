@@ -251,26 +251,6 @@ Congratulations, you now have a working Change Stream from SQL Server. This open
 
 ## Notes
 
-### Initial Snapshot
-
-As described in the documentation, Debezium take an initial snapshot of the selected tables, in order to send *all the existing data* into the change stream. As you can imagine this can take a *long* time if tables are big. Also keep in mind that, by default, Debezium will do a
-
-```sql
-SELECT * FROM <table> WITH (TABLOCKX)
-```
-
-and will do the same connection for all the configured tables so it will lock pretty much everything. Be aware! The lock used during the initial snapshot can be configured using dedicated options (see the "Advanced" section):
-
-[Connector Properties](https://debezium.io/docs/connectors/sqlserver/#connector-properties)
-
-If you don't want Debezium to take the snapshot, for example because you're doing it on your own, using Database Snapshots and Bulk Load, then you can set the option `snapshot.mode` to `schema_only`, to make sure only schema is snapshotted and *not* data. In that case, starting from version 0.10.beta4 of Debezium, the following statement will be executed:
-
-```sql
-SELECT TOP (0) * FROM <table> WITH (TABLOCKX)
-```
-
-And that won't cause any harm to your system.
-
 ### Running Debezium on Azure
 
 If you're using Debezium with Azure SQL MI or Azure SQL DB, you may want to run Debezium on Azure. Sample script to run the Debezium container on Azure Container Instances are available in the `debezium/azure` folder.
