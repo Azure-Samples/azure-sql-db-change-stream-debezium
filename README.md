@@ -1,4 +1,34 @@
+---
+page_type: sample
+languages:
+- tsql
+- sql
+- csharp
+products:
+- azure-sql-database
+- sql-server
+- azure-sql-managed-instance
+- azure-sqlserver-vm
+- azure
+- dotnet
+- dotnet-core
+- azure-functions
+- azure-event-hubs
+description: "Create a Change Data Feed from Azure SQL or SQL Server using the Open Source tool Debezium"
+urlFragment: smart-bulk-copy
+---
+
 # Azure SQL / SQL Server Change Stream with Debezium
+
+<!-- 
+Guidelines on README format: https://review.docs.microsoft.com/help/onboard/admin/samples/concepts/readme-template?branch=master
+
+Guidance on onboarding samples to docs.microsoft.com/samples: https://review.docs.microsoft.com/help/onboard/admin/samples/process/onboarding?branch=master
+
+Taxonomies for products and languages: https://review.docs.microsoft.com/new-hope/information-architecture/metadata/taxonomies?branch=master
+-->
+
+![License](https://img.shields.io/badge/license-MIT-green.svg) ![Run Tests](https://github.com/yorek/smartbulkcopy/workflows/Run%20Tests/badge.svg) 
 
 SQL Server Change Stream sample using [Debezium](https://debezium.io/). A change feed or change stream allow applications to access real-time data changes, using standard technologies and well-known API, to create modern applications using the full power of database like SQL Server.
 
