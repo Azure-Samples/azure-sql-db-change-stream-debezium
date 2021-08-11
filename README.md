@@ -28,7 +28,7 @@ Guidance on onboarding samples to docs.microsoft.com/samples: https://review.doc
 Taxonomies for products and languages: https://review.docs.microsoft.com/new-hope/information-architecture/metadata/taxonomies?branch=master
 -->
 
-![License](https://img.shields.io/badge/license-MIT-green.svg) ![Run Tests](https://github.com/yorek/smartbulkcopy/workflows/Run%20Tests/badge.svg) 
+![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 SQL Server Change Stream sample using [Debezium](https://debezium.io/). A change feed or change stream allow applications to access real-time data changes, using standard technologies and well-known API, to create modern applications using the full power of database like SQL Server.
 
