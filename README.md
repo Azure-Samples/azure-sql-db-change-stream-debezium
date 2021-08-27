@@ -15,7 +15,7 @@ products:
 - azure-functions
 - azure-event-hubs
 description: "Create a Change Data Feed from Azure SQL or SQL Server using the Open Source tool Debezium"
-urlFragment: smart-bulk-copy
+urlFragment: azure-sql-db-change-stream-debezium
 ---
 
 # Azure SQL / SQL Server Change Stream with Debezium

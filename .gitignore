@@ -331,3 +331,5 @@ ASALocalRun/
 
 # Additional files
 **.env
+__blobstorage__/
+__azurite_db_*
