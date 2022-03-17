@@ -165,7 +165,7 @@ namespace Azure.SQLDB.ChangeDataCapture.Debezium.Sample
             Before = new Fields(body, "before");
             After = new Fields(body, "after");
 
-            switch (_payload["op"].ToString())
+            switch (_payload["op"]?.ToString())
             {
                 case "c":
                     Operation = Operation.Insert;
@@ -180,7 +180,7 @@ namespace Azure.SQLDB.ChangeDataCapture.Debezium.Sample
                     break;
 
                 default:
-                    throw new ApplicationException("Field 'op' contains an unknown value.");
+                    throw new ApplicationException("Field 'op' contains an unknown value or doesn't exists.");
             }
         }
     }

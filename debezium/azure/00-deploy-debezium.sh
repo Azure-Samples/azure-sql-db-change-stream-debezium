@@ -3,7 +3,7 @@
 # Strict mode, fail on any error
 set -euo pipefail
 
-export DEBEZIUM_VERSION=1.6
+export DEBEZIUM_VERSION=1.8
 export RESOURCE_GROUP="dm-debezium"
 export EVENTHUB_NAME="dm-debezium"
 export CONTAINER_NAME="dm-debezium"
