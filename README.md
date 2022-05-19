@@ -30,7 +30,7 @@ Taxonomies for products and languages: https://review.docs.microsoft.com/new-hop
 
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-SQL Server Change Stream sample using [Debezium](https://debezium.io/). A change feed or change stream allow applications to access real-time data changes, using standard technologies and well-known API, to create modern applications using the full power of database like SQL Server.
+Azure SQL Database and SQL Server Change Stream sample using [Debezium](https://debezium.io/). A change feed or change stream allow applications to access real-time data changes, using standard technologies and well-known API, to create modern applications using the full power of database like SQL Server.
 
 Debezium make use of [Change Data Capture](https://docs.microsoft.com/en-us/sql/relational-databases/track-changes/about-change-data-capture-sql-server?view=sql-server-2017), so it can be used with SQL Server on-premises and the whole [Azure SQL](https://azure.microsoft.com/en-us/products/azure-sql) family (https://azure.microsoft.com/en-us/products/azure-sql) (Azure SQL MI, Azure SQL DB, SQL Server on VM).
 
