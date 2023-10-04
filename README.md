@@ -11,7 +11,6 @@ products:
 - azure-sqlserver-vm
 - azure
 - dotnet
-- dotnet-core
 - azure-functions
 - azure-event-hubs
 description: "Create a Change Data Feed from Azure SQL or SQL Server using the Open Source tool Debezium"
