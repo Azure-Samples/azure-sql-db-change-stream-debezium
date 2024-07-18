@@ -1,0 +1,30 @@
+{
+    "name": "wwi",
+    "config": {
+      "snapshot.mode": "schema_only",
+      "connector.class": "io.debezium.connector.sqlserver.SqlServerConnector",
+      "database.hostname": "<sql_server_name>.database.windows.net",
+      "database.port": "1433",
+      "database.user": "<debezium_user_name>",
+      "database.password": "<debezium_user_password>",
+      "database.names": "<db_name>",
+      "driver.encrypt": "false",
+      "driver.trustServerCertificate": "true",
+      "schema.history.internal.kafka.bootstrap.servers": "<eventhub_namespace>.servicebus.windows.net:9093",
+      "schema.history.internal.kafka.topic": "dbzschemahistory",
+      "schema.history.internal.consumer.security.protocol": "SASL_SSL",
+      "schema.history.internal.consumer.sasl.mechanism": "PLAIN",
+      "schema.history.internal.consumer.sasl.jaas.config": "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"$ConnectionString\" password=\"<eventhub_connectionstring>\";",
+      "schema.history.internal.producer.security.protocol": "SASL_SSL",
+      "schema.history.internal.producer.sasl.mechanism": "PLAIN",
+      "schema.history.internal.producer.sasl.jaas.config": "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"$ConnectionString\" password=\"<eventhub_connectionstring>\";",
+      "table.include.list": "Sales.Orders,Warehouse.StockItems",
+      "tombstones.on.delete": false,
+      "topic.prefix": "SQLAzure",
+      "transforms": "Reroute",
+      "transforms.Reroute.type": "io.debezium.transforms.ByLogicalTableRouter",
+      "transforms.Reroute.topic.regex": "(.*)",
+      "transforms.Reroute.topic.replacement": "wwi"
+    }
+  }
+  

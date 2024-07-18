@@ -71,16 +71,27 @@ All data gathered by Change Data Capture will be send to Event Hubs, so create a
 
 ```bash
 # create group
-az group create -n debezium -l eastus
+az group create \
+    --name debezium \
+    --location eastus
 
 # create eventhuvbs with kafka enabled
-az eventhubs namespace create -n debezium -g debezium -l eastus --enable-kafka
+az eventhubs namespace create \
+    --name debezium \
+    --resource-group debezium \
+    --location eastus \
+    --enable-kafka
 ```
 
 Later in the configuration process you'll need the EventHubs connection string, so grab it and store it somewhere:
 
 ```bash
-az eventhubs namespace authorization-rule keys list -g debezium --namespace-name debezium -n RootManageSharedAccessKey --query "primaryConnectionString" -o tsv
+az eventhubs namespace authorization-rule keys list \
+    --resouce-group debezium \
+    --namespace-name debezium \
+    --name RootManageSharedAccessKey \
+    --query "primaryConnectionString" \
+    --output tsv
  ```
 
 ### Run Debezium
@@ -96,12 +107,12 @@ If prefer a more lean and quick easy to start using Debezium, you can just use t
 Docker Compose will use `.env` to get the environment variables values used in the `.yaml` configuration file. The provided `.env.template` file look like the following:
 
 ```bash
-DEBEZIUM_VERSION=1.6
-EH_NAME=debezium
+DEBEZIUM_VERSION=2.7
+EVENTHUB_NAMESPACE=debezium
 EH_CONNECTION_STRING=
 ```
 
-Copy it and create a new `.env` file. Leave the version set to 1.6. Change the `EH_NAME` to the EventHubs name you created before. Also set `EH_CONNECTION_STRING` to hold the EventHubs connection string you got before. Make sure not to use any additional quotes or double quotes.
+Copy it and create a new `.env` file. Leave the version set to `2.7`. Change the `EVENTHUB_NAMESPACE` to the EventHubs name you created before. Also set `EH_CONNECTION_STRING` to hold the EventHubs connection string you got before. Make sure not to use any additional quotes or double quotes.
 
 #### The .yaml file
 
@@ -157,7 +168,10 @@ Once the startup has finished, you'll see something like
 you will see three topics (or EventHub to use the Azure EventHubs nomenclature):
 
 ```bash
-az eventhubs eventhub list -g debezium --namespace debezium -o table
+az eventhubs eventhub list \
+    --resouce-group debezium \
+    --namespace debezium 
+    --output table
 ```
 
 and the result will show:
@@ -170,20 +184,20 @@ to explore Azure Event Hubs is strongly suggest to download and use [Service Bus
 
 #### Register SQL Server Connector
 
-Now that Debezium is running, the SQL Server Connector (which is used both for connecting to Azure SQL or SQL Server) can be registered. Before doing that, make sure to specify the correct connection for your SQL Server instance in the `debezium/register-sqlserver-eh.json` file. You can create one using the provided `.template` file.
+Now that Debezium is running, the SQL Server Connector (which is used both for connecting to Azure SQL or SQL Server) can be registered. Before doing that, make sure to specify the correct connection for your SQL Server instance in the [debezium/sqlserver-connector-config.json](debezium/sqlserver-connector-config.json) file. You can create one using the provided `.template` file.
 
 If you are using the Wide World Importers database, the only values you have to change are:
 
 ```json
-"database.hostname": "<server>.database.windows.net",
-"database.dbname": "<database-name>",
+"database.hostname": "<sql_server_name>.database.windows.net",
+"database.names": "<db_name>",
 ```
 
 If you are following the step-by-step guide using a database of yours, make sure to also correctly set values for
 
 ```json
-"database.user" : "debezium-wwi",
-"database.password" : "Abcd1234!",
+"database.user" : "<debezium_user_name>",
+"database.password" : "<debezium_user_password>",
 ```
 
 All the other values used are explained in detail here:
