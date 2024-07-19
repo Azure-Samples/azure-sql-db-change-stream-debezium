@@ -31,7 +31,7 @@ cat > ../sqlserver-connector-config.json << EOF
     "schema.history.internal.producer.sasl.mechanism": "PLAIN",
     "schema.history.internal.producer.sasl.jaas.config": "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"\$ConnectionString\" password=\"${EH_CONNECTION_STRING}\";",
     "table.include.list": "Sales.Orders,Warehouse.StockItems",
-    "tombstones.on.delete": false,
+    "tombstones.on.delete": "false",
     "topic.prefix": "SQLAzure",
     "transforms": "Reroute",
     "transforms.Reroute.type": "io.debezium.transforms.ByLogicalTableRouter",
