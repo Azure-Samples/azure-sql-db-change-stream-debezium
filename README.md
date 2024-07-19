@@ -267,6 +267,9 @@ Congratulations, you now have a working Change Stream from SQL Server. This open
 
 If you're using Debezium with Azure SQL MI or Azure SQL DB, you may want to run Debezium on Azure. Sample script to run the Debezium container on Azure Container Instances are available in the `debezium/azure` folder.
 
+Please note that the [01-register-connector.sh](debezium/azure/01-register-connector.sh) will take care of creating the Debezium SQL Server connector configuration JSON file, and then will use it to register a new connector on Debezium.
+The generated file will be stored in the `debezium` folder.
+
 ### Connector Configuration
 
 More details on SQL Server and Event Hubs specific configuration here:
