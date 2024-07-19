@@ -11,7 +11,7 @@
       "driver.encrypt": "false",
       "driver.trustServerCertificate": "true",
       "schema.history.internal.kafka.bootstrap.servers": "<eventhub_namespace>.servicebus.windows.net:9093",
-      "schema.history.internal.kafka.topic": "dbzschemahistory",
+      "schema.history.internal.kafka.topic": "<eventhub_schema_history>",
       "schema.history.internal.consumer.security.protocol": "SASL_SSL",
       "schema.history.internal.consumer.sasl.mechanism": "PLAIN",
       "schema.history.internal.consumer.sasl.jaas.config": "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"$ConnectionString\" password=\"<eventhub_connectionstring>\";",

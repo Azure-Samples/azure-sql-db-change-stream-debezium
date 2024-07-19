@@ -4,10 +4,10 @@
 set -euo pipefail
 
 DEBEZIUM_VERSION=2.7
-RESOURCE_GROUP="dbzrg"
-EVENTHUB_NAMESPACE="dbzeventhub"
-EVENTHUB_SCHEMA_HISTORY="dbzschemahistory"
-CONTAINER_NAME="dbzcontainer"
+RESOURCE_GROUP="debezium"
+EVENTHUB_NAMESPACE="debezium"
+EVENTHUB_SCHEMA_HISTORY="schemahistory"
+CONTAINER_NAME="debezium"
 LOCATION="WestUS2"
 
 echo "deploying resource group"
@@ -33,7 +33,7 @@ az eventhubs eventhub create \
     --output none
 
 echo "gathering eventhubs connection string"
-EH_CONNECTION_STRING=`az eventhubs namespace authorization-rule keys list --resource-group $RESOURCE_GROUP --name RootManageSharedAccessKey --namespace-name $EVENTHUB_NAMESPACE --output tsv --query 'primaryConnectionString'`
+EVENTHUB_CONNECTION_STRING=`az eventhubs namespace authorization-rule keys list --resource-group $RESOURCE_GROUP --name RootManageSharedAccessKey --namespace-name $EVENTHUB_NAMESPACE --output tsv --query 'primaryConnectionString'`
 
 echo "deploying debezium container"
 az container create \
@@ -57,13 +57,13 @@ az container create \
 		CONNECT_REQUEST_TIMEOUT_MS=60000 \
 		CONNECT_SECURITY_PROTOCOL=SASL_SSL \
 		CONNECT_SASL_MECHANISM=PLAIN \
-		CONNECT_SASL_JAAS_CONFIG="org.apache.kafka.common.security.plain.PlainLoginModule required username=\"\$ConnectionString\" password=\"${EH_CONNECTION_STRING}\";" \
+		CONNECT_SASL_JAAS_CONFIG="org.apache.kafka.common.security.plain.PlainLoginModule required username=\"\$ConnectionString\" password=\"${EVENTHUB_CONNECTION_STRING}\";" \
 		CONNECT_PRODUCER_SECURITY_PROTOCOL=SASL_SSL \
 		CONNECT_PRODUCER_SASL_MECHANISM=PLAIN \
-		CONNECT_PRODUCER_SASL_JAAS_CONFIG="org.apache.kafka.common.security.plain.PlainLoginModule required username=\"\$ConnectionString\" password=\"${EH_CONNECTION_STRING}\";" \
+		CONNECT_PRODUCER_SASL_JAAS_CONFIG="org.apache.kafka.common.security.plain.PlainLoginModule required username=\"\$ConnectionString\" password=\"${EVENTHUB_CONNECTION_STRING}\";" \
 		CONNECT_CONSUMER_SECURITY_PROTOCOL=SASL_SSL \
 		CONNECT_CONSUMER_SASL_MECHANISM=PLAIN \
-		CONNECT_CONSUMER_SASL_JAAS_CONFIG="org.apache.kafka.common.security.plain.PlainLoginModule required username=\"\$ConnectionString\" password=\"${EH_CONNECTION_STRING}\";"
+		CONNECT_CONSUMER_SASL_JAAS_CONFIG="org.apache.kafka.common.security.plain.PlainLoginModule required username=\"\$ConnectionString\" password=\"${EVENTHUB_CONNECTION_STRING}\";"
  
 echo "eventhub connection string"
-echo $EH_CONNECTION_STRING
+echo $EVENTHUB_CONNECTION_STRING
