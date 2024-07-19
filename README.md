@@ -186,6 +186,9 @@ to explore Azure Event Hubs is strongly suggest to download and use [Service Bus
 
 Now that Debezium is running, the SQL Server Connector (which is used both for connecting to Azure SQL or SQL Server) can be registered. Before doing that, make sure to specify the correct connection for your SQL Server instance in a file named `sqlserver-connector-config.json`. You can create one using the template file [sqlserver-connector-config.json.template](debezium/sqlserver-connector-config.json.template) file.
 
+Please note that, the script [debezium/on-prem/register-connector.ps1](debezium/on-prem/register-connector.ps1) will take care of generating the Debezium SQL Server connector configuration JSON file, and then will use it to register a new connector on Debezium.
+The generated file will be stored in the `debezium` folder.
+
 If you are using the Wide World Importers database, the only values you have to change are:
 
 ```json
