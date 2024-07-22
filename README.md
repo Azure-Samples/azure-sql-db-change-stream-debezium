@@ -186,9 +186,13 @@ Once the startup has finished, you'll see something like
 you will see four topics (or EventHub to use the Azure EventHubs nomenclature):
 
 ```bash
+
+RESOURCE_GROUP=debezium
+EVENTHUB_NAMESPACE=debezium
+
 az eventhubs eventhub list \
-    --resouce-group debezium \
-    --namespace debezium 
+    --resouce-group $RESOURCE_GROUP \
+    --namespace $EVENTHUB_NAMESPACE \ 
     --output table
 ```
 
