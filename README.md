@@ -192,7 +192,7 @@ EVENTHUB_NAMESPACE=debezium
 
 az eventhubs eventhub list \
     --resource-group $RESOURCE_GROUP \
-    --namespace $EVENTHUB_NAMESPACE \ 
+    --namespace-name $EVENTHUB_NAMESPACE \
     --output table
 ```
 
