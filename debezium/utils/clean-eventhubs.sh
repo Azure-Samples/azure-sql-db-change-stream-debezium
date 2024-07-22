@@ -3,14 +3,17 @@
 # Strict mode, fail on any error
 set -euo pipefail
 
-export RESOURCE_GROUP="dm-debezium"
-export EVENTHUB_NAME="dm-debezium"
+RESOURCE_GROUP="debezium"
+EVENTHUB_NAMESPACE="debezium"
 
 echo "deleting debezium-created eventhubs"
-ehs=("debezium_configs" "debezium_offsets" "debezium_statuses")
+ehs=("debezium_configs" "debezium_offsets" "debezium_statuses" "dbzschemahistory")
 for e in "${ehs[@]}"; do
     echo "deleting $e..."
-    az eventhubs eventhub delete -g $RESOURCE_GROUP --namespace-name $EVENTHUB_NAME --name $e
+    az eventhubs eventhub delete \
+        --resource-group $RESOURCE_GROUP \
+        --namespace-name $EVENTHUB_NAMESPACE \
+        --name $e
 done
 
 echo "done"

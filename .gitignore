@@ -333,3 +333,6 @@ ASALocalRun/
 **.env
 __blobstorage__/
 __azurite_db_*
+
+# SQL Server Debezium connector config (generated)
+sqlserver-connector-config.json

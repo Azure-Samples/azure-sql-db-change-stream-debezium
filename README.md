@@ -70,17 +70,46 @@ The script `01-enable-cdc.sql` enable Change Data Capture on the aforementioned 
 All data gathered by Change Data Capture will be send to Event Hubs, so create an Azure Event Hubs in your Azure Subscription. Using the [Azure Cloud Shell](https://shell.azure.com/) Bash:
 
 ```bash
-# create group
-az group create -n debezium -l eastus
+# Set vars
+RESOURCE_GROUP=debezium
+LOCATION=eastus
+EVENTHUB_NAMESPACE=debezium
+EVENTHUB_SCHEMA_HISTORY=schemahistory
 
-# create eventhuvbs with kafka enabled
-az eventhubs namespace create -n debezium -g debezium -l eastus --enable-kafka
+# create group
+az group create \
+    --name $RESOURCE_GROUP \
+    --location $LOCATION
+
+# create eventhub namespace with kafka enabled
+az eventhubs namespace create \
+    --name $EVENTHUB_NAMESPACE \
+    --resource-group $RESOURCE_GROUP \
+    --location $LOCATION \
+    --enable-kafka
+
+# create eventhub for schema history
+az eventhubs eventhub create \
+    --resource-group $RESOURCE_GROUP \
+    --namespace $EVENTHUB_NAMESPACE \
+    --name $EVENTHUB_SCHEMA_HISTORY \
+    --partition-count 1 \
+    --cleanup-policy Delete \
+    --retention-time-in-hours 168
 ```
 
 Later in the configuration process you'll need the EventHubs connection string, so grab it and store it somewhere:
 
 ```bash
-az eventhubs namespace authorization-rule keys list -g debezium --namespace-name debezium -n RootManageSharedAccessKey --query "primaryConnectionString" -o tsv
+RESOURCE_GROUP=debezium
+EVENTHUB_NAMESPACE=debezium
+
+az eventhubs namespace authorization-rule keys list \
+    --resource-group $RESOURCE_GROUP \
+    --namespace-name $EVENTHUB_NAMESPACE \
+    --name RootManageSharedAccessKey \
+    --query "primaryConnectionString" \
+    --output tsv
  ```
 
 ### Run Debezium
@@ -96,12 +125,12 @@ If prefer a more lean and quick easy to start using Debezium, you can just use t
 Docker Compose will use `.env` to get the environment variables values used in the `.yaml` configuration file. The provided `.env.template` file look like the following:
 
 ```bash
-DEBEZIUM_VERSION=1.6
-EH_NAME=debezium
-EH_CONNECTION_STRING=
+DEBEZIUM_VERSION=2.7
+EVENTHUB_NAMESPACE=<eventhub_namespace>
+EVENTHUB_CONNECTION_STRING=<eventhub_connection_string>
 ```
 
-Copy it and create a new `.env` file. Leave the version set to 1.6. Change the `EH_NAME` to the EventHubs name you created before. Also set `EH_CONNECTION_STRING` to hold the EventHubs connection string you got before. Make sure not to use any additional quotes or double quotes.
+Copy it and create a new `.env` file. Leave the version set to `2.7`. Change the `EVENTHUB_NAMESPACE` to the EventHubs name you created before. Also set `EVENTHUB_CONNECTION_STRING` to hold the EventHubs connection string you got before. Make sure not to use any additional quotes or double quotes.
 
 #### The .yaml file
 
@@ -154,10 +183,17 @@ Once the startup has finished, you'll see something like
 [Worker clientId=connect-1, groupId=1] Finished starting connectors and tasks   [org.apache.kafka.connect.runtime.distributed.DistributedHerder]
 ```
 
-you will see three topics (or EventHub to use the Azure EventHubs nomenclature):
+you will see four topics (or EventHub to use the Azure EventHubs nomenclature):
 
 ```bash
-az eventhubs eventhub list -g debezium --namespace debezium -o table
+
+RESOURCE_GROUP=debezium
+EVENTHUB_NAMESPACE=debezium
+
+az eventhubs eventhub list \
+    --resource-group $RESOURCE_GROUP \
+    --namespace-name $EVENTHUB_NAMESPACE \
+    --output table
 ```
 
 and the result will show:
@@ -165,26 +201,35 @@ and the result will show:
 - debezium_configs
 - debezium_offsets
 - debezium_statuses
+- schemahistory
 
 to explore Azure Event Hubs is strongly suggest to download and use [Service Bus Explorer](https://github.com/paolosalvatori/ServiceBusExplorer)
 
 #### Register SQL Server Connector
 
-Now that Debezium is running, the SQL Server Connector (which is used both for connecting to Azure SQL or SQL Server) can be registered. Before doing that, make sure to specify the correct connection for your SQL Server instance in the `debezium/register-sqlserver-eh.json` file. You can create one using the provided `.template` file.
+Now that Debezium is running, the SQL Server Connector (which is used both for connecting to Azure SQL or SQL Server) can be registered. Before doing that, make sure to specify the correct connection for your SQL Server instance in a file named `sqlserver-connector-config.json`. You can create one using the template file [sqlserver-connector-config.json.template](debezium/sqlserver-connector-config.json.template) file.
 
-If you are using the Wide World Importers database, the only values you have to change are:
-
-```json
-"database.hostname": "<server>.database.windows.net",
-"database.dbname": "<database-name>",
-```
-
-If you are following the step-by-step guide using a database of yours, make sure to also correctly set values for
+Make sure to change the following properties to match your SQL Server configuration:
 
 ```json
-"database.user" : "debezium-wwi",
-"database.password" : "Abcd1234!",
+"database.hostname": "<sql_server_name>.database.windows.net",
+"database.names": "<db_name>",
+"database.user" : "<debezium_user_name>",
+"database.password" : "<debezium_user_password>",
 ```
+
+You would need to replace `<sql_server_name>`, `<db_name>`, `<debezium_user_name>`, and `<debezium_user_password>` with proper values.
+
+Also, make sure to change the following properties to match your Azure Event Hub configuration:
+
+```json
+"schema.history.internal.kafka.bootstrap.servers": "<eventhub_namespace>.servicebus.windows.net:9093",
+"schema.history.internal.kafka.topic": "<eventhub_schema_history>",
+"schema.history.internal.consumer.sasl.jaas.config": "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"$ConnectionString\" password=\"<eventhub_connectionstring>\";",
+"schema.history.internal.producer.sasl.jaas.config": "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"$ConnectionString\" password=\"<eventhub_connectionstring>\";",
+```
+
+You would need to replace `<eventhub_namespace>`, `<eventhub_schema_history>`, and `<eventhub_connectionstring>` with proper values.
 
 All the other values used are explained in detail here:
 
@@ -252,6 +297,9 @@ Congratulations, you now have a working Change Stream from SQL Server. This open
 ### Running Debezium on Azure
 
 If you're using Debezium with Azure SQL MI or Azure SQL DB, you may want to run Debezium on Azure. Sample script to run the Debezium container on Azure Container Instances are available in the `debezium/azure` folder.
+
+Please note that the script [01-register-connector.sh](debezium/azure/01-register-connector.sh) will take care of creating the Debezium SQL Server connector configuration JSON file, and then will use it to register a new connector on Debezium.
+The generated file will be stored in the `debezium` folder.
 
 ### Connector Configuration
 
