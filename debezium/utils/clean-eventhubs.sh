@@ -3,8 +3,8 @@
 # Strict mode, fail on any error
 set -euo pipefail
 
-RESOURCE_GROUP="dbzrg"
-EVENTHUB_NAMESPACE="dbzeventhub"
+RESOURCE_GROUP="debezium"
+EVENTHUB_NAMESPACE="debezium"
 
 echo "deleting debezium-created eventhubs"
 ehs=("debezium_configs" "debezium_offsets" "debezium_statuses" "dbzschemahistory")

@@ -78,7 +78,7 @@ EVENTHUB_SCHEMA_HISTORY=schemahistory
 
 # create group
 az group create \
-    --name $RESOUCE_GROUP \
+    --name $RESOURCE_GROUP \
     --location $LOCATION
 
 # create eventhub namespace with kafka enabled
