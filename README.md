@@ -90,7 +90,7 @@ az eventhubs namespace create \
 
 # create eventhub for schema history
 az eventhubs eventhub create \
-    --resource-group $RESOURCE_GROUP
+    --resource-group $RESOURCE_GROUP \
     --namespace $EVENTHUB_NAMESPACE \
     --name $EVENTHUB_SCHEMA_HISTORY \
     --partition-count 1 \
