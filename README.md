@@ -105,7 +105,7 @@ RESOURCE_GROUP=debezium
 EVENTHUB_NAMESPACE=debezium
 
 az eventhubs namespace authorization-rule keys list \
-    --resouce-group $RESOURCE_GROUP \
+    --resource-group $RESOURCE_GROUP \
     --namespace-name $EVENTHUB_NAMESPACE \
     --name RootManageSharedAccessKey \
     --query "primaryConnectionString" \
